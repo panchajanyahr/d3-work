@@ -8,6 +8,6 @@ body {
     shape-rendering: crispEdges;
 }
 
-.chart text {
+text {
     text-anchor: middle;
 }

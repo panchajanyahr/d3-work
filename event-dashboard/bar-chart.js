@@ -22,7 +22,7 @@ function wrap(text, width) {
   });
 }
 
-function barChart(container, options) {
+function barChart(svg, options) {
     var margin = {top: 20, right: 0, bottom: 30, left: 50},
     width = 400 - margin.left - margin.right,
     height = 300 - margin.top - margin.bottom;
@@ -45,9 +45,8 @@ function barChart(container, options) {
         .orient("left")
         .tickFormat(d3.format("s"));
 
-    var svg = container.append("svg")
-        .attr({width: width + margin.left + margin.right,
-               height: height + margin.top + margin.bottom});
+    svg.attr({width: width + margin.left + margin.right,
+              height: height + margin.top + margin.bottom});
 
     svg.selectAll("text.y-heading")
         .data([options.yHeading])

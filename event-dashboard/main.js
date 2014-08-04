@@ -28,7 +28,7 @@ d3.csv("bi32.csv", function(error, data) {
         })
         .entries(data);
 
-    barChart(d3.select(".total-revenue"), {yHeading:"Revenue", data:totalRevenueData});
-    barChart(d3.select(".average-revenue"), {yHeading:"Revenue by suite", data:averageRevenueData});
-    barChart(d3.select(".per-head-revenue"), {yHeading:"Average", data:perHeadRevenueData});
+    barChart(d3.select(".total-revenue svg"), {yHeading:"Revenue", data:totalRevenueData});
+    barChart(d3.select(".average-revenue svg"), {yHeading:"Revenue by suite", data:averageRevenueData});
+    barChart(d3.select(".per-head-revenue svg"), {yHeading:"Average", data:perHeadRevenueData});
 });

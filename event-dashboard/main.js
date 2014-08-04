@@ -1,16 +1,20 @@
 d3.csv("bi32.csv", function(error, data) {
+    var dollarFormatter = d3.format("$,.2f");
+
     var totalRevenueData = d3.nest()
         .key(function(d) { return d["eventname"].trim(); })
-        .rollup(function(events) { return d3.sum(events, function(d) {
-            return parseInt(d["  value  "].replace("$","").replace(",", ""));
-        });})
+        .rollup(function(events) {
+            var totalRevenue = d3.sum(events, function(d) { return parseInt(d["  value  "].replace("$","").replace(",", "")); });
+            return {value: totalRevenue, valueToShow: dollarFormatter(totalRevenue) };
+        })
         .entries(data);
 
     var averageRevenueData = d3.nest()
         .key(function(d) { return d["eventname"].trim(); })
         .rollup(function(events) {
             var totalRevenue = d3.sum(events, function(d) { return parseInt(d["  value  "].replace("$","").replace(",", "")); });
-            return totalRevenue/events.length;
+            var average = totalRevenue/events.length;
+            return {value:average , valueToShow: dollarFormatter(average) } ;
         })
         .entries(data);
 
@@ -19,7 +23,8 @@ d3.csv("bi32.csv", function(error, data) {
         .rollup(function(events) {
             var totalRevenue = d3.sum(events, function(d) { return parseInt(d["  value  "].replace("$","").replace(",", "")); });
             var totalCapacity = d3.sum(events, function(d) { return parseInt(d["capacity"]); });
-            return totalRevenue/totalCapacity;
+            var average = totalRevenue/totalCapacity;
+            return {value:average , valueToShow: dollarFormatter(average)} ;
         })
         .entries(data);
 

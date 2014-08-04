@@ -27,13 +27,14 @@ function barChart(container, options) {
     width = 400 - margin.left - margin.right,
     height = 300 - margin.top - margin.bottom;
 
+    var colorScale = d3.scale.category10();
     var x = d3.scale.ordinal()
         .rangeRoundBands([0, width], .2)
         .domain(options.data.map(function(d) { return d.key; }));
 
     var y = d3.scale.linear()
         .range([height, 0])
-        .domain([0, d3.max(options.data, function(d) { return d.values; })]);
+        .domain([0, d3.max(options.data, function(d) { return d.values.value; })]);
 
     var xAxis = d3.svg.axis()
         .scale(x)
@@ -82,14 +83,15 @@ function barChart(container, options) {
         .append("rect")
         .attr("x", function(d) { return x(d.key); })
         .attr("width", x.rangeBand())
-        .attr("y", function(d) { return y(d.values); })
-        .attr("height", function(d) { return height - y(d.values); });
+        .attr("y", function(d) { return y(d.values.value); })
+        .attr("height", function(d) { return height - y(d.values.value); })
+        .style("fill", function(d, i) { return colorScale(i); });
 
     chart.selectAll("text")
         .data(options.data)
         .enter()
         .append("text")
         .attr("x", function(d) { return x(d.key) + x.rangeBand()/2; })
-        .attr("y", function(d) { return y(d.values) - 3; })
-        .text(function(d) { return d.values; });
+        .attr("y", function(d) { return y(d.values.value) - 3; })
+        .text(function(d) { return d.values.valueToShow; });
 }

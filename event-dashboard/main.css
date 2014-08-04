@@ -11,3 +11,7 @@ body {
 text {
     text-anchor: middle;
 }
+
+.bar-charts div {
+    display: inline-block;
+}

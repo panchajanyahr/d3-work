@@ -76,15 +76,21 @@ function barChart(svg, options) {
         .attr("class", "chart")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    chart.selectAll("rect")
-        .data(options.data)
-        .enter()
+    var rects = chart.selectAll("rect")
+        .data(options.data);
+
+    rects.enter()
         .append("rect")
         .attr("x", function(d) { return x(d.key); })
         .attr("width", x.rangeBand())
+        .attr("y", height)
+        .attr("height", 0)
+        .style("fill", function(d, i) { return colorScale(i); });
+
+    rects.transition()
+        .duration(750)
         .attr("y", function(d) { return y(d.values.value); })
         .attr("height", function(d) { return height - y(d.values.value); })
-        .style("fill", function(d, i) { return colorScale(i); });
 
     chart.selectAll("text")
         .data(options.data)

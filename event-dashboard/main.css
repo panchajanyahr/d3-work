@@ -12,17 +12,31 @@ text {
     text-anchor: middle;
 }
 
-.bar-charts {
+.bar-charts, .pie-charts {
     margin: 0 auto;
     width: 90%;
 }
 
-.bar-charts div {
+.pie-charts div, .bar-charts div {
     display: inline-block;
+    margin: 10px;
+    border: 1px solid gray;
 }
 
 h3 {
     text-align: center;
     font-size: 15px;
     font-weight: 300;
+    margin: 0;
+    padding: 10px;
+    background-color: grey;
+}
+
+h2 {
+    text-align: center;
+    font-size: 15px;
+    font-weight: 300;
+    margin: 0;
+    padding: 10px;
+    background-color: grey;
 }

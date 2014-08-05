@@ -23,7 +23,7 @@ function wrap(text, width) {
 }
 
 function barChart(svg, options) {
-    var margin = {top: 20, right: 0, bottom: 30, left: 50},
+    var margin = {top: 20, right: 0, bottom: 50, left: 50},
     width = 400 - margin.left - margin.right,
     height = 300 - margin.top - margin.bottom;
 

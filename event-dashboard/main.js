@@ -31,4 +31,28 @@ d3.csv("bi32.csv", function(error, data) {
     barChart(d3.select(".total-revenue svg"), {yHeading:"Revenue", data:totalRevenueData});
     barChart(d3.select(".average-revenue svg"), {yHeading:"Revenue by suite", data:averageRevenueData});
     barChart(d3.select(".per-head-revenue svg"), {yHeading:"Average", data:perHeadRevenueData});
+
+    d3.nest()
+        .key(function(d) { return d["eventname"].trim(); })
+        .entries(data)
+        .forEach(function(entries) {
+            var eventName = entries.key;
+            var events = entries.values;
+
+            var data = d3.nest()
+                .key(function(d) {
+                    var menu = d["selected_menu"].trim();
+                    return menu === "" ? "No Menu Chosen" : menu;
+                })
+                .rollup(function(menuEvents) { return {value: menuEvents.length}; })
+                .entries(events);
+
+            var div = d3.select(".pie-charts")
+                .append("div");
+
+            div.append("h3")
+                .text(eventName);
+            var svg = div.append("svg");
+            pieChart(svg, {data: data});
+        });
 });

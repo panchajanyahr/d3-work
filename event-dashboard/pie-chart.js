@@ -13,8 +13,7 @@ function pieChart(svg, options) {
 
     var color = d3.scale.category10();
 
-    var svg = svg.attr({width: width,
-                        height: height})
+    var svg = svg.attr("viewBox", "0 0 " + width + " " + height)
         .append("g")
         .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 

@@ -1,29 +1,53 @@
-<link rel="stylesheet" type="text/css" href="main.css">
-<div class="bar-charts">
-  <div class="total-revenue">
-    <h3>Total Revenue for the Event</h3>
-    <svg></svg>
-  </div>
-  <div class="average-revenue">
-    <h3>Average By Facility</h3>
-    <svg>
-  </div>
-  <div class="per-head-revenue">
-    <h3>Per Head - Event Revenue</h3>
-    <svg></svg>
-  </div>
-</div>
-<div class="pie-charts">
-  <h2>Menu Choice</h2>
-</div>
-<div class="area-charts">
-  <h2>Revenue By Company</h2>
-  <div>
-    <svg></svg>
-  </div>
-</div>
-<script src="http://cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
-<script src="area-chart.js"></script>
-<script src="pie-chart.js"></script>
-<script src="bar-chart.js"></script>
-<script src="main.js"></script>
+<html>
+  <head>
+    <title>Event Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" type="text/css"/>
+    <link rel="stylesheet" href="lib/bootstrap-multiselect.css" type="text/css"/>
+    <link rel="stylesheet" type="text/css" href="main.css"/>
+  </head>
+  <body>
+    <div class="container">
+      <div class="head row">
+        <h1 class="col-sm-4">Event Dashboard</h1>
+        <div class="col-sm-4 form-group">
+          <label class="col-sm-4">Event Name</label>
+          <select class="col-sm-8 multiselect event-names" multiple="multiple"></select>
+        </div>
+        <div class="col-sm-4 form-group">
+          <label class="col-sm-4">Event Type</label>
+          <select class="col-sm-8 multiselect event-names" multiple="multiple"></select>
+        </div>
+      </div>
+      <div class="row bar-charts">
+        <div class="col-sm-4 total-revenue">
+          <h3>Total Revenue for the Event</h3>
+          <svg></svg>
+        </div>
+        <div class="col-sm-4 average-revenue">
+          <h3>Average By Facility</h3>
+          <svg>
+        </div>
+        <div class="col-sm-4 per-head-revenue">
+          <h3>Per Head - Event Revenue</h3>
+          <svg></svg>
+        </div>
+      </div>
+      <h2>Menu Choice</h2>
+      <div class="row pie-charts">
+      </div>
+      <h2>Revenue By Company</h2>
+      <div class="row area-charts">
+        <svg></svg>
+      </div>
+    </div>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
+    <script type="text/javascript" src="lib/bootstrap-multiselect.js"></script>
+    <script src="area-chart.js"></script>
+    <script src="pie-chart.js"></script>
+    <script src="bar-chart.js"></script>
+    <script src="main.js"></script>
+  </body>
+</html>

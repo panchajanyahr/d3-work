@@ -1,7 +1,20 @@
-body {
-    font: 10px sans-serif;
+.head {
+    margin-top:20px;
+    margin-bottom:20px;
 }
 
+.head .form-group {
+    margin-top: 10px;
+}
+
+.head h1, .head div {
+    margin: 0;
+}
+
+.head .form-group > label {
+    margin-top: 10px;
+    text-align: right;
+}
 .axis path, .axis line {
     fill: none;
     stroke: #000;
@@ -13,13 +26,9 @@ text {
 }
 
 .bar-charts, .pie-charts, .area-charts {
-    margin: 0 auto;
-    width: 90%;
 }
 
 .pie-charts div, .bar-charts div, .area-charts div {
-    display: inline-block;
-    margin: 10px;
     border: 1px solid gray;
 }
 
@@ -27,20 +36,15 @@ text {
     fill: #D79066;
 }
 
-h3 {
+h2, h3 {
     text-align: center;
-    font-size: 15px;
-    font-weight: 300;
-    margin: 0;
-    padding: 10px;
-    background-color: grey;
+    font-weight: 400;
+    font-size: 18px;
+    text-overflow:ellipsis;
+    overflow:hidden;
+    white-space:nowrap;
 }
 
-h2 {
-    text-align: center;
-    font-size: 15px;
-    font-weight: 300;
-    margin: 0;
-    padding: 10px;
-    background-color: grey;
+svg {
+    font-size: 10px;
 }

@@ -23,7 +23,7 @@ function wrap(text, width) {
 }
 
 function barChart(svg, options) {
-    var margin = {top: 20, right: 0, bottom: 50, left: 50},
+    var margin = {top: 20, right: 0, bottom:50, left: 50},
     width = 400 - margin.left - margin.right,
     height = 300 - margin.top - margin.bottom;
 
@@ -45,8 +45,9 @@ function barChart(svg, options) {
         .orient("left")
         .tickFormat(d3.format("s"));
 
-    svg.attr({width: width + margin.left + margin.right,
-              height: height + margin.top + margin.bottom});
+    svg.attr({viewBox: "0 0 " +
+              (width + margin.left + margin.right) + " " +
+              (height + margin.top + margin.bottom)});
 
     svg.selectAll("text.y-heading")
         .data([options.yHeading])

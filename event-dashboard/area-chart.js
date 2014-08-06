@@ -1,5 +1,5 @@
 function areaChart(svg, options) {
-    var margin = {top: 20, right: 20, bottom: 200, left: 50},
+    var margin = {top: 20, right: 0, bottom: 200, left: 50},
     width = 1200 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
@@ -24,8 +24,7 @@ function areaChart(svg, options) {
         .y0(height)
         .y1(function(d) { return y(d.values.value); });
 
-    var main = svg.attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
+    var main = svg.attr("viewBox", "0 0 " + (width + margin.left + margin.right) + " " +(height + margin.top + margin.bottom))
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 

@@ -1,15 +1,31 @@
+function prop(propName) {
+    return function(d) {
+        return d[propName];
+    };
+}
+
 $(document).ready(function() {
     d3.csv("bi32.csv", function(error, data) {
-        var eventNames = d3.set(data.map(function(d){
-            return d["eventname"];
-        })).values().map(function(d) {
-            return {label: d, value: d};
-        });
+        var eventNames = d3.set(data.map(prop("eventname"))).values();
+        var eventTypes = d3.set(data.map(prop("event type"))).values();
 
-        $('.event-names').multiselect({
+        var multiSelectOptions = {
             includeSelectAllOption: true,
             numberDisplayed: 0
-        }).multiselect('dataprovider', eventNames);
+        };
+
+        var sameLabelAndValue = function(d) { return {label: d, value: d} };
+
+        $('.event-names').multiselect(multiSelectOptions)
+            .multiselect('dataprovider', eventNames.map(sameLabelAndValue))
+            .multiselect('select', eventNames)
+            .multiselect('rebuild');
+
+        $('.event-types').multiselect(multiSelectOptions)
+            .multiselect('dataprovider', eventTypes.map(sameLabelAndValue))
+            .multiselect('select', eventTypes)
+            .multiselect('rebuild');
+
 
         var dollarFormatter = d3.format("$,.2f");
 

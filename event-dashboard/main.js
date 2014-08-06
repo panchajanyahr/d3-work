@@ -32,7 +32,8 @@ $(document).ready(function() {
         var totalRevenueData = d3.nest()
             .key(eventNameFn)
             .rollup(function(events) {
-                return {value: totalRevenue(events), valueToShow: dollarFormatter(totalRevenue)};
+                var total = totalRevenue(events);
+                return {value: total, valueToShow: dollarFormatter(total)};
             })
             .entries(data);
 

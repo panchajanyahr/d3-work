@@ -26,7 +26,11 @@ $(document).ready(function() {
         eventDashboard = {
             data: data,
             eventNames: eventNames,
-            eventTypes: eventTypes
+            eventTypes: eventTypes,
+            options: {
+                colorScale: d3.scale.category10(),
+                transitionDuration: 750
+            }
         };
 
         updateCharts();
@@ -73,9 +77,15 @@ function updateCharts() {
         })
         .entries(selectedData);
 
-    barChart(d3.select(".total-revenue svg"), {yHeading:"Revenue", data:totalRevenueData});
-    barChart(d3.select(".average-revenue svg"), {yHeading:"Revenue by suite", data:averageRevenueData});
-    barChart(d3.select(".per-head-revenue svg"), {yHeading:"Average", data:perHeadRevenueData});
+    barChart(d3.select(".total-revenue svg"), {
+        yHeading:"Revenue", data:totalRevenueData
+    }, eventDashboard.options);
+    barChart(d3.select(".average-revenue svg"), {
+        yHeading:"Revenue by suite", data:averageRevenueData
+    }, eventDashboard.options);
+    barChart(d3.select(".per-head-revenue svg"), {
+        yHeading:"Average", data:perHeadRevenueData
+    }, eventDashboard.options);
 
     d3.nest()
         .key(eventNameFn)

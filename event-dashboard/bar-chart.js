@@ -1,9 +1,17 @@
-function barChart(svg, options) {
+function selectOrCreate(parent, nodeType, classes) {
+    var result = parent.selectAll(nodeType + "." + classes.split(" ").join("."));
+    if (result.empty()) {
+        return parent.append(nodeType).attr("class", classes);
+    }
+
+    return result;
+}
+
+function barChart(svg, options, chartOptions) {
     var margin = {top: 20, right: 0, bottom:50, left: 50},
     width = 400 - margin.left - margin.right,
     height = 300 - margin.top - margin.bottom;
 
-    var colorScale = d3.scale.category10();
     var x = d3.scale.ordinal()
         .rangeRoundBands([0, width], .2)
         .domain(options.data.map(function(d) { return d.key; }));
@@ -21,9 +29,9 @@ function barChart(svg, options) {
         .orient("left")
         .tickFormat(d3.format("s"));
 
-    svg.attr({viewBox: "0 0 " +
-              (width + margin.left + margin.right) + " " +
-              (height + margin.top + margin.bottom)});
+    var fullWidth = width + margin.left + margin.right;
+    var fullHeight = height + margin.top + margin.bottom;
+    svg.attr("viewBox", "0 0 " + fullWidth + " " + fullHeight);
 
     svg.selectAll("text.y-heading")
         .data([options.yHeading])
@@ -36,44 +44,60 @@ function barChart(svg, options) {
                dy:"1.35em"})
         .text(function(d) { return d; });
 
-
-    svg.append("g")
-        .attr("class", "x axis")
+    selectOrCreate(svg, "g", "x axis")
         .attr("transform", "translate(" + margin.left + "," + (height + margin.top) + ")")
+        .transition().duration(chartOptions.transitionDuration)
         .call(xAxis)
         .selectAll(".tick text")
         .call(wrap, x.rangeBand());
 
-    svg.append("g")
+    selectOrCreate(svg, "g", "y axis")
         .attr("class", "y axis")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+        .transition().duration(chartOptions.transitionDuration)
         .call(yAxis);
 
-    var chart = svg.append("g")
-        .attr("class", "chart")
+    var chart = selectOrCreate(svg, "g", "chart")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     var rects = chart.selectAll("rect")
-        .data(options.data);
+        .data(options.data, prop("key"));
 
     rects.enter()
         .append("rect")
-        .attr("x", function(d) { return x(d.key); })
-        .attr("width", x.rangeBand())
         .attr("y", height)
         .attr("height", 0)
-        .style("fill", function(d, i) { return colorScale(i); });
+        .style("fill", function(d) {
+            return chartOptions.colorScale(d.key);
+        });
 
     rects.transition()
-        .duration(750)
+        .duration(chartOptions.transitionDuration)
+        .attr("x", function(d) { return x(d.key); })
+        .attr("width", x.rangeBand())
         .attr("y", function(d) { return y(d.values.value); })
         .attr("height", function(d) { return height - y(d.values.value); })
 
-    chart.selectAll("text")
-        .data(options.data)
-        .enter()
+    rects.exit()
+        .transition().duration(chartOptions.transitionDuration)
+        .attr("y", height)
+        .attr("height", 0)
+        .remove();
+
+    var texts = chart.selectAll("text")
+        .data(options.data, prop("key"))
+
+    texts.enter()
         .append("text")
+        .attr("y", height);
+
+    texts.transition().duration(chartOptions.transitionDuration)
         .attr("x", function(d) { return x(d.key) + x.rangeBand()/2; })
         .attr("y", function(d) { return y(d.values.value) - 3; })
         .text(function(d) { return d.values.valueToShow; });
+
+    texts.exit()
+        .transition().duration(chartOptions.transitionDuration)
+        .attr("y", height)
+        .remove();
 }

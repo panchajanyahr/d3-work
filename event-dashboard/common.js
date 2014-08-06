@@ -27,3 +27,12 @@ function wrap(text, width) {
     }
   });
 }
+
+function selectOrCreate(parent, nodeType, classes) {
+    var result = parent.selectAll(nodeType + "." + classes.split(" ").join("."));
+    if (result.empty()) {
+        return parent.append(nodeType).attr("class", classes);
+    }
+
+    return result;
+}

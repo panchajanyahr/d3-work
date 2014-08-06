@@ -87,30 +87,45 @@ function updateCharts() {
         yHeading:"Average", data:perHeadRevenueData
     }, eventDashboard.options);
 
-    d3.nest()
+    var pieDataEntries = d3.nest()
         .key(eventNameFn)
-        .entries(selectedData)
-        .forEach(function(entries) {
-            var eventName = entries.key;
-            var events = entries.values;
+        .entries(selectedData);
 
-            var data = d3.nest()
-                .key(function(d) {
-                    var menu = d["selected_menu"].trim();
-                    return menu === "" ? "No Menu Chosen" : menu;
-                })
-                .rollup(function(menuEvents) { return {value: menuEvents.length}; })
-                .entries(events);
+    var pieCharts = d3.select(".pie-charts")
+        .selectAll("div")
+        .data(pieDataEntries, function(d) { return d.key; });
 
-            var div = d3.select(".pie-charts")
-                .append("div")
-                .attr("class", "col-sm-4");
+    var newPieCharts = pieCharts.enter()
+        .append("div")
+        .attr("class", "col-sm-4");
 
-            div.append("h3")
-                .text(eventName);
-            var svg = div.append("svg");
-            pieChart(svg, {data: data});
-        });
+    newPieCharts.append("h3").text(function(entries) {
+        return entries.key;
+    });
+    newPieCharts.append("svg");
+
+    pieCharts.sort(function(entries1, entries2) {
+        return d3.ascending(eventDashboard.eventNames.indexOf(entries1.key),
+                            eventDashboard.eventNames.indexOf(entries2.key));
+    });
+
+    pieCharts.each(function(entries) {
+        var eventName = entries.key;
+        var events = entries.values;
+
+        var data = d3.nest()
+            .key(function(d) {
+                var menu = d["selected_menu"].trim();
+                return menu === "" ? "No Menu Chosen" : menu;
+            })
+            .rollup(function(menuEvents) { return {value: menuEvents.length}; })
+            .entries(events);
+
+        var root = d3.select(this);
+        pieChart(root.select("svg"), {data: data}, eventDashboard.options);
+    });
+
+    pieCharts.exit().remove();
 
     var revenueByCompanyData = d3.nest()
         .key(prop("name"))

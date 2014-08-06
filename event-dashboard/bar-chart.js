@@ -1,12 +1,3 @@
-function selectOrCreate(parent, nodeType, classes) {
-    var result = parent.selectAll(nodeType + "." + classes.split(" ").join("."));
-    if (result.empty()) {
-        return parent.append(nodeType).attr("class", classes);
-    }
-
-    return result;
-}
-
 function barChart(svg, options, chartOptions) {
     var margin = {top: 20, right: 0, bottom:50, left: 50},
     width = 400 - margin.left - margin.right,

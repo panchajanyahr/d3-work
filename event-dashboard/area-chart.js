@@ -24,17 +24,18 @@ function areaChart(svg, options) {
         .y0(height)
         .y1(function(d) { return y(d.values.value); });
 
-    var main = svg.attr("viewBox", "0 0 " + (width + margin.left + margin.right) + " " +(height + margin.top + margin.bottom))
-        .append("g")
+    var fullWidth = width + margin.left + margin.right;
+    var fullHeight = height + margin.top + margin.bottom;
+    svg.attr("viewBox", "0 0 " + fullWidth + " " + fullHeight);
+
+    var main = selectOrCreate(svg, "g", "main")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    main.append("path")
+    selectOrCreate(main, "path", "area")
         .datum(options.data)
-        .attr("class", "area")
         .attr("d", area);
 
-    main.append("g")
-        .attr("class", "x axis")
+    selectOrCreate(main, "g", "x axis")
         .attr("transform", "translate(0," + height + ")")
         .call(xAxis)
         .selectAll("text")
@@ -45,7 +46,6 @@ function areaChart(svg, options) {
         .attr("dy", "0.35em")
         .style("text-anchor", "end");
 
-    main.append("g")
-        .attr("class", "y axis")
+    selectOrCreate(main, "g", "y axis")
         .call(yAxis);
 }

@@ -1,9 +1,3 @@
-function prop(propName) {
-    return function(d) {
-        return d[propName];
-    };
-}
-
 $(document).ready(function() {
     d3.csv("bi32.csv", function(error, data) {
         var eventNames = d3.set(data.map(prop("eventname"))).values();
@@ -28,30 +22,33 @@ $(document).ready(function() {
 
 
         var dollarFormatter = d3.format("$,.2f");
+        var eventNameFn = function(d) { return d["eventname"].trim(); };
+        var totalRevenue = function(events) {
+            return d3.sum(events, function(d) {
+                return parseInt(d["  value  "].replace("$","").replace(",", ""));
+            });
+        };
 
         var totalRevenueData = d3.nest()
-            .key(function(d) { return d["eventname"].trim(); })
+            .key(eventNameFn)
             .rollup(function(events) {
-                var totalRevenue = d3.sum(events, function(d) { return parseInt(d["  value  "].replace("$","").replace(",", "")); });
-                return {value: totalRevenue, valueToShow: dollarFormatter(totalRevenue) };
+                return {value: totalRevenue(events), valueToShow: dollarFormatter(totalRevenue)};
             })
             .entries(data);
 
         var averageRevenueData = d3.nest()
-            .key(function(d) { return d["eventname"].trim(); })
+            .key(eventNameFn)
             .rollup(function(events) {
-                var totalRevenue = d3.sum(events, function(d) { return parseInt(d["  value  "].replace("$","").replace(",", "")); });
-                var average = totalRevenue/events.length;
+                var average = totalRevenue(events)/events.length;
                 return {value:average , valueToShow: dollarFormatter(average) } ;
             })
             .entries(data);
 
         var perHeadRevenueData = d3.nest()
-            .key(function(d) { return d["eventname"].trim(); })
+            .key(eventNameFn)
             .rollup(function(events) {
-                var totalRevenue = d3.sum(events, function(d) { return parseInt(d["  value  "].replace("$","").replace(",", "")); });
                 var totalCapacity = d3.sum(events, function(d) { return parseInt(d["capacity"]); });
-                var average = totalRevenue/totalCapacity;
+                var average = totalRevenue(events)/totalCapacity;
                 return {value:average , valueToShow: dollarFormatter(average)} ;
             })
             .entries(data);
@@ -61,7 +58,7 @@ $(document).ready(function() {
         barChart(d3.select(".per-head-revenue svg"), {yHeading:"Average", data:perHeadRevenueData});
 
         d3.nest()
-            .key(function(d) { return d["eventname"].trim(); })
+            .key(eventNameFn)
             .entries(data)
             .forEach(function(entries) {
                 var eventName = entries.key;
@@ -86,10 +83,10 @@ $(document).ready(function() {
             });
 
         var revenueByCompanyData = d3.nest()
-            .key(function(d) { return d["name"]; })
+            .key(prop("name"))
             .rollup(function(events) {
-                var totalRevenue = d3.sum(events, function(d) { return parseInt(d["  value  "].replace("$","").replace(",", "")); });
-                return {value: totalRevenue, valueToShow: dollarFormatter(totalRevenue) };
+                return {value: totalRevenue(events),
+                        valueToShow: dollarFormatter(totalRevenue) };
             })
             .entries(data)
             .sort(function(a, b) {

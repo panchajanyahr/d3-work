@@ -12,15 +12,19 @@ text {
     text-anchor: middle;
 }
 
-.bar-charts, .pie-charts {
+.bar-charts, .pie-charts, .area-charts {
     margin: 0 auto;
     width: 90%;
 }
 
-.pie-charts div, .bar-charts div {
+.pie-charts div, .bar-charts div, .area-charts div {
     display: inline-block;
     margin: 10px;
     border: 1px solid gray;
+}
+
+.area-charts path.area {
+    fill: #D79066;
 }
 
 h3 {

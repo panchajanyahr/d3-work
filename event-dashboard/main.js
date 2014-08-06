@@ -55,4 +55,18 @@ d3.csv("bi32.csv", function(error, data) {
             var svg = div.append("svg");
             pieChart(svg, {data: data});
         });
+
+    var revenueByCompanyData = d3.nest()
+        .key(function(d) { return d["name"]; })
+        .rollup(function(events) {
+            var totalRevenue = d3.sum(events, function(d) { return parseInt(d["  value  "].replace("$","").replace(",", "")); });
+            return {value: totalRevenue, valueToShow: dollarFormatter(totalRevenue) };
+        })
+        .entries(data)
+        .sort(function(a, b) {
+            var result = d3.ascending(a.values.value, b.values.value);
+            return result === 0 ? d3.ascending(a.key, b.key) : result;
+        });
+
+    areaChart(d3.select(".area-charts svg"), {data: revenueByCompanyData});
 });

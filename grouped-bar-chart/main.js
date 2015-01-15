@@ -13,6 +13,8 @@ var padding = {
     query: 50
 };
 
+var colorScale = d3.scale.category10();
+
 d3.json("data.json", function(error, chartData) {
     var width = fullWidth - margin.left - margin.right;
     var height = fullHeight - margin.top - margin.bottom;
@@ -21,37 +23,39 @@ d3.json("data.json", function(error, chartData) {
         .attr("width", fullWidth)
         .attr("height", fullHeight);
 
-    var queryIndex = -1;
-    var sampleIndex = -1;
-
     var sampleCount = 0;
+    var queryCount = _.keys(chartData).length;
 
     var flatData = _.flatten(
         _.map(chartData, function(samples, queryName) {
-            queryIndex++;
             sampleCount += _.keys(samples).length;
 
             return _.map(samples, function(values, sampleName) {
-                sampleIndex++;
                 return _.map(values, function(value, key) {
                     return {
                         key: key,
                         value: value,
                         sample: sampleName,
-                        query: queryName,
-                        queryIndex: queryIndex,
-                        sampleIndex: sampleIndex
+                        query: queryName
                     };
                 });
             });
         })
     );
 
+    var queries = _.chain(flatData)
+        .pluck('query')
+        .uniq()
+        .value();
+
+    var samples = _.chain(flatData)
+        .map(function(d) { return d.query + ":" + d.sample; })
+        .uniq()
+        .value();
+
     var chartArea = chart
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    var colorScale = d3.scale.category10();
 
     var y = d3.scale.linear()
         .range([height, 0])
@@ -66,8 +70,6 @@ d3.json("data.json", function(error, chartData) {
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
         .call(yAxis);
 
-    var queryCount = _.keys(chartData).length;
-
     var barWidth = (width -
                     (flatData.length + 1) * padding.bar -
                     (sampleCount - 1) * padding.sample -
@@ -78,9 +80,10 @@ d3.json("data.json", function(error, chartData) {
         .data(flatData)
         .enter().append("g")
         .attr("transform", function(d, i) {
-            var xPadding = (d.queryIndex * padding.query +
-                            d.sampleIndex * padding.sample +
-                            ((i + 1) * padding.bar));
+            var xPadding = queries.indexOf(d.query) * padding.query +
+                samples.indexOf(d.query + ":" + d.sample) * padding.sample +
+                (i + 1) * padding.bar;
+
             var x = (i * barWidth) + xPadding;
             return "translate(" + x + ",0)";
         });

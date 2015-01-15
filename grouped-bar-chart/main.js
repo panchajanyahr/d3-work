@@ -15,7 +15,32 @@ var padding = {
 
 var colorScale = d3.scale.category10();
 
-d3.json("data.json", function(error, chartData) {
+var flattenQueries = function(queries) {
+    var flatData = [];
+    var sampleIndex = 0;
+
+    queries.forEach(function(query, queryIndex) {
+        query.samples.forEach(function(sample) {
+            sample.values.map(function(obj) {
+                    flatData.push({
+                        key: obj.key,
+                        value: obj.value,
+                        sample: sample.name,
+                        query: query.name,
+                        queryIndex: queryIndex,
+                        sampleIndex: sampleIndex
+                    });
+            });
+            sampleIndex++;
+        });
+    });
+
+    return flatData;
+};
+
+d3.json("data.json", function(error, queries) {
+    var flatQueries = flattenQueries(queries);
+
     var width = fullWidth - margin.left - margin.right;
     var height = fullHeight - margin.top - margin.bottom;
 
@@ -23,35 +48,10 @@ d3.json("data.json", function(error, chartData) {
         .attr("width", fullWidth)
         .attr("height", fullHeight);
 
-    var sampleCount = 0;
-    var queryCount = _.keys(chartData).length;
-
-    var flatData = _.flatten(
-        _.map(chartData, function(samples, queryName) {
-            sampleCount += _.keys(samples).length;
-
-            return _.map(samples, function(values, sampleName) {
-                return _.map(values, function(value, key) {
-                    return {
-                        key: key,
-                        value: value,
-                        sample: sampleName,
-                        query: queryName
-                    };
-                });
-            });
-        })
-    );
-
-    var queries = _.chain(flatData)
-        .pluck('query')
-        .uniq()
-        .value();
-
-    var samples = _.chain(flatData)
-        .map(function(d) { return d.query + ":" + d.sample; })
-        .uniq()
-        .value();
+    var queryCount = queries.length;
+    var sampleCount = d3.sum(queries, function(query) {
+        return query.samples.length;
+    });
 
     var chartArea = chart
         .append("g")
@@ -59,7 +59,7 @@ d3.json("data.json", function(error, chartData) {
 
     var y = d3.scale.linear()
         .range([height, 0])
-        .domain([0, d3.max(flatData, function(d) { return d.value; })]);
+        .domain([0, d3.max(flatQueries, function(d) { return d.value; })]);
 
     var yAxis = d3.svg.axis()
         .scale(y)
@@ -71,17 +71,17 @@ d3.json("data.json", function(error, chartData) {
         .call(yAxis);
 
     var barWidth = (width -
-                    (flatData.length + 1) * padding.bar -
+                    (flatQueries.length + 1) * padding.bar -
                     (sampleCount - 1) * padding.sample -
                     (queryCount - 1) * padding.query
-                   ) / flatData.length;
+                   ) / flatQueries.length;
 
     var bar = chartArea.selectAll("g")
-        .data(flatData)
+        .data(flatQueries)
         .enter().append("g")
         .attr("transform", function(d, i) {
-            var xPadding = queries.indexOf(d.query) * padding.query +
-                samples.indexOf(d.query + ":" + d.sample) * padding.sample +
+            var xPadding = d.queryIndex * padding.query +
+                d.sampleIndex * padding.sample +
                 (i + 1) * padding.bar;
 
             var x = (i * barWidth) + xPadding;

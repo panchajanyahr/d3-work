@@ -1,14 +1,14 @@
-{
-    "query1":
-    {
-        "sample1": {"A":47, "B":21},
-        "sample2":{"A":79, "B":48, "C":38},
-        "sample3":{"A":47, "D":21}
-    },
-    "query2":
-    {
-        "sample1": {"A":73, "B":51},
-        "sample2":{"A":92, "B":45 },
-        "sample3":{"A":75}
-    }
-}
+[{"name": "query1",
+  "samples":[{"name": "sample1", "values": [{"key": "A", "value": 47},
+                                            {"key": "B", "value": 21}]},
+             {"name": "sample2", "values": [{"key": "A", "value": 79},
+                                            {"key": "B", "value": 48},
+                                            {"key": "C", "value": 38}]},
+             {"name": "sample3", "values": [{"key": "A", "value": 47},
+                                            {"key": "D", "value": 21}]}]},
+ {"name": "query2",
+  "samples":[{"name": "sample1", "values": [{"key": "A", "value": 73},
+                                            {"key": "B", "value": 51}]},
+             {"name": "sample2", "values": [{"key": "A", "value": 92},
+                                            {"key": "B", "value": 45}]},
+             {"name": "sample3", "values": [{"key": "A", "value": 75}]}]}]

@@ -7,10 +7,14 @@ d3.json("data.json", function(error, data) {
         .attr("height", height);
 
     var queryIndex = -1;
+    var sampleIndex = -1;
+
+    var sampleCount = 0;
+
     var flatData = _.flatten(
         _.map(data, function(samples, queryName) {
             queryIndex++;
-            var sampleIndex = -1;
+            sampleCount += _.keys(samples).length;
 
             return _.map(samples, function(values, sampleName) {
                 sampleIndex++;
@@ -29,6 +33,7 @@ d3.json("data.json", function(error, data) {
     );
 
     var barPadding = 5;
+    var samplePadding = 20;
     var queryPadding = 50;
 
     var y = d3.scale.linear()
@@ -39,6 +44,7 @@ d3.json("data.json", function(error, data) {
 
     var barWidth = (width -
                     (flatData.length + 1) * barPadding -
+                    (sampleCount - 1) * samplePadding -
                     (queryCount - 1) * queryPadding
                    ) / flatData.length;
 
@@ -46,9 +52,10 @@ d3.json("data.json", function(error, data) {
         .data(flatData)
         .enter().append("g")
         .attr("transform", function(d, i) {
-            var x = (i * barWidth) +
-                d.queryIndex * queryPadding +
-                ((i + 1) * barPadding);
+            var padding = (d.queryIndex * queryPadding +
+                           d.sampleIndex * samplePadding +
+                           ((i + 1) * barPadding));
+            var x = (i * barWidth) + padding;
             return "translate(" + x + ",0)";
         });
 

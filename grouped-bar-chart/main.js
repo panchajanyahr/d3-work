@@ -9,8 +9,8 @@ var margin = {
 
 var padding = {
     bar: 5,
-    sample: 50,
-    query: 100
+    sample: 20,
+    query: 50
 };
 
 d3.json("data.json", function(error, chartData) {
@@ -51,6 +51,8 @@ d3.json("data.json", function(error, chartData) {
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+    var colorScale = d3.scale.category10();
+
     var y = d3.scale.linear()
         .range([height, 0])
         .domain([0, d3.max(flatData, function(d) { return d.value; })]);
@@ -85,7 +87,9 @@ d3.json("data.json", function(error, chartData) {
 
     bar.append("rect")
         .attr("y", function(d) { return y(d.value); })
-        .attr("fill", "blue")
+        .attr("fill", function(d) {
+            return d3.rgb(colorScale(d.query));
+        })
         .attr("height", function(d) { return height - y(d.value); })
         .attr("width", barWidth);
 

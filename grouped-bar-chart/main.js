@@ -1,14 +1,11 @@
-var width = 960,
-height = 500;
-
-var y = d3.scale.linear()
-    .range([height, 0]);
-
-var chart = d3.select(".chart")
-    .attr("width", width)
-    .attr("height", height);
-
 d3.json("data.json", function(error, data) {
+    var width = 960;
+    var height = 500;
+
+    var chart = d3.select(".chart")
+        .attr("width", width)
+        .attr("height", height);
+
     var flatData = _.flatten(
         _.map(data, function(samples, queryName) {
             return _.map(samples, function(values, sampleName) {
@@ -24,19 +21,26 @@ d3.json("data.json", function(error, data) {
         })
     );
 
-    y.domain([0, d3.max(flatData, function(d) { return d.value; })]);
+    var barPadding = 5;
 
-    var barWidth = width / flatData.length;
+    var y = d3.scale.linear()
+        .range([height, 0])
+        .domain([0, d3.max(flatData, function(d) { return d.value; })]);
+
+    var barWidth = (width - (flatData.length + 1) * barPadding) / flatData.length;
 
     var bar = chart.selectAll("g")
         .data(flatData)
         .enter().append("g")
-        .attr("transform", function(d, i) { return "translate(" + i * barWidth + ",0)"; });
+        .attr("transform", function(d, i) {
+            var x = (i * barWidth) + ((i + 1) * barPadding);
+            return "translate(" + x + ",0)";
+        });
 
     bar.append("rect")
         .attr("y", function(d) { return y(d.value); })
         .attr("height", function(d) { return height - y(d.value); })
-        .attr("width", barWidth - 1);
+        .attr("width", barWidth);
 
     bar.append("text")
         .attr("x", barWidth / 2)
@@ -44,8 +48,3 @@ d3.json("data.json", function(error, data) {
         .attr("dy", ".75em")
         .text(function(d) { return d.value; });
 });
-
-function type(d) {
-    d.value = +d.value; // coerce to number
-    return d;
-}

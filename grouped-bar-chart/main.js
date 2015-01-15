@@ -15,89 +15,82 @@ var padding = {
 
 var colorScale = d3.scale.category10();
 
-var flattenQueries = function(queries) {
-    var flatData = [];
-    var sampleIndex = 0;
-
-    queries.forEach(function(query, queryIndex) {
+var queryValues = function(queries) {
+    var values = [];
+    queries.forEach(function(query) {
         query.samples.forEach(function(sample) {
-            sample.values.map(function(obj) {
-                    flatData.push({
-                        key: obj.key,
-                        value: obj.value,
-                        sample: sample.name,
-                        query: query.name,
-                        queryIndex: queryIndex,
-                        sampleIndex: sampleIndex
-                    });
+            sample.values.forEach(function(obj) {
+                values.push(obj.value);
             });
-            sampleIndex++;
         });
     });
 
-    return flatData;
+    return values;
 };
 
-d3.json("data.json", function(error, queries) {
-    var flatQueries = flattenQueries(queries);
+var barWidth = function(queries, width, padding) {
+    var totalQueryPadding = (queries.length - 1) * padding.query;
 
-    var width = fullWidth - margin.left - margin.right;
-    var height = fullHeight - margin.top - margin.bottom;
-
-    var chart = d3.select(".chart")
-        .attr("width", fullWidth)
-        .attr("height", fullHeight);
-
-    var queryCount = queries.length;
-    var sampleCount = d3.sum(queries, function(query) {
-        return query.samples.length;
+    var totalSamplePadding = d3.sum(queries, function(query) {
+        return (query.samples.length - 1) * padding.sample;
     });
 
-    var chartArea = chart
-        .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    var totalBarPadding = d3.sum(queries, function(query) {
+        return d3.sum(query.samples, function(sample) {
+            return (sample.values.length - 1) * padding.bar;
+        });
+    });
 
-    var y = d3.scale.linear()
-        .range([height, 0])
-        .domain([0, d3.max(flatQueries, function(d) { return d.value; })]);
+    return (width - totalBarPadding - totalSamplePadding - totalQueryPadding) / queryValues(queries).length;
+};
 
-    var yAxis = d3.svg.axis()
-        .scale(y)
-        .orient("left");
+var stackQueries = function(queries, barWidth) {
+    queries.forEach(function(query, queryIndex) {
+        query.samples.forEach(function(sample, sampleIndex) {
+            sample.values.forEach(function(obj, barIndex) {
+                obj.width = barWidth;
+                obj.offset = barIndex * (barWidth + padding.bar);
+            });
 
-    chart.append("g")
-        .attr("class", "y axis")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-        .call(yAxis);
+            sample.width = sample.values[sample.values.length - 1].offset + barWidth;
 
-    var barWidth = (width -
-                    (flatQueries.length + 1) * padding.bar -
-                    (sampleCount - 1) * padding.sample -
-                    (queryCount - 1) * padding.query
-                   ) / flatQueries.length;
-
-    var bar = chartArea.selectAll("g")
-        .data(flatQueries)
-        .enter().append("g")
-        .attr("transform", function(d, i) {
-            var xPadding = d.queryIndex * padding.query +
-                d.sampleIndex * padding.sample +
-                (i + 1) * padding.bar;
-
-            var x = (i * barWidth) + xPadding;
-            return "translate(" + x + ",0)";
+            if(sampleIndex > 0) {
+                var previousSample = query.samples[sampleIndex -1];
+                sample.offset = previousSample.width + previousSample.offset + padding.sample;
+            } else {
+                sample.offset = 0;
+            }
         });
 
-    bar.append("rect")
-        .attr("y", function(d) { return y(d.value); })
-        .attr("fill", function(d) {
-            return d3.rgb(colorScale(d.query));
-        })
-        .attr("height", function(d) { return height - y(d.value); })
-        .attr("width", barWidth);
+        var lastSample = query.samples[query.samples.length - 1];
+        query.width = lastSample.offset + lastSample.width;
 
-    bar.append("text")
-        .attr("x", barWidth / 2)
+        if(queryIndex > 0) {
+            var previousQuery = queries[queryIndex -1];
+            query.offset = previousQuery.width + previousQuery.offset + padding.query;
+        } else {
+            query.offset = 0;
+        }
+    });
+};
+
+var renderBar = function(group, query, sample, y, height) {
+    group.append("rect")
+        .attr("fill", function(d) {
+            return colorScale(query.name);
+        })
+        .attr("y", function(d) { return y(d.value); })
+        .attr("height", function(d) {
+            return height - y(d.value);
+        })
+        .attr("width", function(d) {
+            return d.width;
+        });
+
+    group.append("text")
+        .attr("x", function(d) {
+            return d.width / 2;
+        })
         .attr("y", function(d) {
             return y(d.value) + 3;
         })
@@ -106,4 +99,74 @@ d3.json("data.json", function(error, queries) {
         .text(function(d) {
             return d.key;
         });
+};
+
+var renderSample = function(group, query, sample, y, height) {
+    group.selectAll("g")
+        .data(sample.values)
+        .enter()
+        .append("g")
+        .attr("transform", function(d, i) {
+            return "translate(" + d.offset + ",0)";
+        })
+        .each(function(obj) {
+            var bar = d3.select(this);
+            renderBar(bar, query, sample, y, height);
+        });
+};
+
+var renderQuery = function(group, query, y, height) {
+    group.selectAll("g")
+        .data(query.samples)
+        .enter()
+        .append("g")
+        .attr("transform", function(sample) {
+            return "translate(" + sample.offset + ",0)";
+        })
+        .each(function(sample) {
+            renderSample(d3.select(this), query, sample, y, height);
+        });
+};
+
+var renderGroupChart = function(queries) {
+    var width = fullWidth - margin.left - margin.right;
+    var height = fullHeight - margin.top - margin.bottom;
+
+    var chart = d3.select(".chart")
+        .attr("width", fullWidth)
+        .attr("height", fullHeight);
+
+    var chartArea = chart
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var y = d3.scale.linear()
+        .range([height, 0])
+        .domain([0, d3.max(queryValues(queries))]);
+
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left");
+
+    chart.append("g")
+        .attr("class", "y axis")
+        .attr("transform", "translate(" + (margin.left - 5) + "," + margin.top + ")")
+        .call(yAxis);
+
+    stackQueries(queries, barWidth(queries, width, padding));
+
+    chartArea.selectAll("g")
+        .data(queries)
+        .enter()
+        .append("g")
+        .attr("transform", function(query) {
+            return "translate(" + query.offset + ",0)";
+        })
+        .each(function(query) {
+            renderQuery(d3.select(this), query, y, height);
+        });
+};
+
+d3.json("data.json", function(error, queries) {
+    renderGroupChart(queries);
 });

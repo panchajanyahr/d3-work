@@ -75,7 +75,7 @@ var stackQueries = function(queries, barWidth) {
 };
 
 var renderBar = function(group, query, sample, y, height) {
-    group.append("rect")
+    group.select("rect")
         .attr("fill", function(d) {
             return colorScale(query.name);
         })
@@ -87,7 +87,7 @@ var renderBar = function(group, query, sample, y, height) {
             return d.width;
         });
 
-    group.append("text")
+    group.select("text")
         .attr("x", function(d) {
             return d.width / 2;
         })
@@ -102,10 +102,18 @@ var renderBar = function(group, query, sample, y, height) {
 };
 
 var renderSample = function(group, query, sample, y, height) {
-    group.selectAll("g")
-        .data(sample.values)
+    var valueGroups = group.selectAll("g.value")
+        .data(sample.values);
+
+    var newValueGroups = valueGroups
         .enter()
         .append("g")
+        .attr("class", "value");
+
+    newValueGroups.append("rect");
+    newValueGroups.append("text");
+
+    valueGroups
         .attr("transform", function(d, i) {
             return "translate(" + d.offset + ",0)";
         })
@@ -116,10 +124,15 @@ var renderSample = function(group, query, sample, y, height) {
 };
 
 var renderQuery = function(group, query, y, height) {
-    group.selectAll("g")
-        .data(query.samples)
+    var sampleGroups = group.selectAll("g.sample")
+        .data(query.samples);
+
+    sampleGroups
         .enter()
         .append("g")
+        .attr("class", "sample");
+
+    sampleGroups
         .attr("transform", function(sample) {
             return "translate(" + sample.offset + ",0)";
         })
@@ -180,11 +193,16 @@ var renderGroupChart = function(container, queries) {
 
     stackQueries(queries, barWidth(queries, width, padding));
 
-    svg.select("g.chart")
-        .selectAll("g")
-        .data(queries)
+    var queryGroups = svg.select("g.chart")
+        .selectAll("g.query")
+        .data(queries);
+
+    queryGroups
         .enter()
         .append("g")
+        .attr("class", "query");
+
+    queryGroups
         .attr("transform", function(query) {
             return "translate(" + query.offset + ",0)";
         })
@@ -193,17 +211,30 @@ var renderGroupChart = function(container, queries) {
         });
 };
 
+var isValidJson = function(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+};
+
+var textArea = function() {
+    return d3.select("textarea").node();
+};
+
 var render = function() {
-    renderGroupChart(".container",
-                     JSON.parse(d3.select("textarea").text()));
+    renderGroupChart(".container", JSON.parse(textArea().value));
 };
 
 d3.json("data.json", function(error, queries) {
-    d3.select("textarea")
-        .text(JSON.stringify(queries, null, 4));
+    textArea().value = JSON.stringify(queries, null, 4);
     render();
 });
 
-d3.select("button").on("click", function() {
-    render();
+d3.select("textarea").on("keyup", function() {
+    if(isValidJson(textArea().value)) {
+        render();
+    }
 });

@@ -1,5 +1,5 @@
-var fullWidth = 960;
-var fullHeight = 500;
+var fullWidth = 800;
+var fullHeight = 400;
 var margin = {
     left: 50,
     right: 0,
@@ -128,13 +128,24 @@ var renderQuery = function(group, query, y, height) {
         });
 };
 
-var renderGroupChart = function(queries) {
+var renderGroupChart = function(container, queries) {
     var width = fullWidth - margin.left - margin.right;
     var height = fullHeight - margin.top - margin.bottom;
 
-    var chart = d3.select(".chart")
-        .attr("width", fullWidth)
-        .attr("height", fullHeight);
+    var chart = d3.select(container)
+        .append("svg")
+        .attr("preserveAspectRatio", "none")
+        .attr("viewBox", "0 0 " + fullWidth + " " + fullHeight);
+
+    var setWidthAndHeight = function() {
+        var width = d3.select(container).node().getBoundingClientRect().width;
+        var aspectRatio = fullHeight / fullWidth;
+        chart.attr("width", width)
+            .attr("height", width * aspectRatio);
+    };
+
+    setWidthAndHeight();
+    window.addEventListener("resize", setWidthAndHeight);
 
     var chartArea = chart
         .append("g")
@@ -168,5 +179,5 @@ var renderGroupChart = function(queries) {
 };
 
 d3.json("data.json", function(error, queries) {
-    renderGroupChart(queries);
+    renderGroupChart(".container", queries);
 });

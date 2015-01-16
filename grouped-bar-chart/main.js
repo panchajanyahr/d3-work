@@ -128,11 +128,8 @@ var renderQuery = function(group, query, y, height) {
         });
 };
 
-var renderGroupChart = function(container, queries) {
-    var width = fullWidth - margin.left - margin.right;
-    var height = fullHeight - margin.top - margin.bottom;
-
-    var chart = d3.select(container)
+var createSvg = function(container) {
+    var svg = d3.select(container)
         .append("svg")
         .attr("preserveAspectRatio", "none")
         .attr("viewBox", "0 0 " + fullWidth + " " + fullHeight);
@@ -140,16 +137,35 @@ var renderGroupChart = function(container, queries) {
     var setWidthAndHeight = function() {
         var width = d3.select(container).node().getBoundingClientRect().width;
         var aspectRatio = fullHeight / fullWidth;
-        chart.attr("width", width)
+        svg.attr("width", width)
             .attr("height", width * aspectRatio);
     };
 
     setWidthAndHeight();
     window.addEventListener("resize", setWidthAndHeight);
 
-    var chartArea = chart
+    var chartArea = svg
         .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        .attr("class", "chart")
+        .attr("transform",
+              "translate(" + margin.left + "," + margin.top + ")");
+
+    svg.append("g")
+        .attr("class", "y axis")
+        .attr("transform", "translate(" + (margin.left - 5) + "," + margin.top + ")")
+
+    return svg;
+};
+
+var renderGroupChart = function(container, queries) {
+    var width = fullWidth - margin.left - margin.right;
+    var height = fullHeight - margin.top - margin.bottom;
+
+    var svg = d3.select(container).select("svg");
+
+    if(svg.empty()) {
+        svg = createSvg(container);
+    }
 
     var y = d3.scale.linear()
         .range([height, 0])
@@ -159,14 +175,13 @@ var renderGroupChart = function(container, queries) {
         .scale(y)
         .orient("left");
 
-    chart.append("g")
-        .attr("class", "y axis")
-        .attr("transform", "translate(" + (margin.left - 5) + "," + margin.top + ")")
+    svg.select("g.y.axis")
         .call(yAxis);
 
     stackQueries(queries, barWidth(queries, width, padding));
 
-    chartArea.selectAll("g")
+    svg.select("g.chart")
+        .selectAll("g")
         .data(queries)
         .enter()
         .append("g")

@@ -193,6 +193,17 @@ var renderGroupChart = function(container, queries) {
         });
 };
 
+var render = function() {
+    renderGroupChart(".container",
+                     JSON.parse(d3.select("textarea").text()));
+};
+
 d3.json("data.json", function(error, queries) {
-    renderGroupChart(".container", queries);
+    d3.select("textarea")
+        .text(JSON.stringify(queries, null, 4));
+    render();
+});
+
+d3.select("button").on("click", function() {
+    render();
 });

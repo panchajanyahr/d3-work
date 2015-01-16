@@ -121,6 +121,8 @@ var renderSample = function(group, query, sample, y, height) {
             var bar = d3.select(this);
             renderBar(bar, query, sample, y, height);
         });
+
+    valueGroups.exit().remove();
 };
 
 var renderQuery = function(group, query, y, height) {
@@ -139,6 +141,8 @@ var renderQuery = function(group, query, y, height) {
         .each(function(sample) {
             renderSample(d3.select(this), query, sample, y, height);
         });
+
+    sampleGroups.exit().remove();
 };
 
 var createSvg = function(container) {
@@ -209,6 +213,10 @@ var renderGroupChart = function(container, queries) {
         .each(function(query) {
             renderQuery(d3.select(this), query, y, height);
         });
+
+    queryGroups
+        .exit()
+        .remove();
 };
 
 var isValidJson = function(str) {

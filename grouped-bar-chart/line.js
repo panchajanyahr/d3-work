@@ -80,6 +80,48 @@ var flatSamples = function(samples) {
     }, []);
 };
 
+var renderQuery = function(queryGroup, query, x, y) {
+    var samples = flatSamples(query.samples);
+
+    var path = queryGroup
+        .selectAll("path")
+        .data([query]);
+
+    path.enter()
+        .append("path");
+
+    path.attr('d', function(query) {
+        return d3.svg.line()
+            .x(function(d) { return x(d.key); })
+            .y(function(d) { return y(d.value); })(samples);
+    }).attr('stroke', function(d) {
+        return colorScale(d.name);
+    }).attr('stroke-width', 2)
+        .attr('fill', 'none');
+
+    var circles = queryGroup.selectAll("circle")
+        .data(samples);
+
+    circles.enter()
+        .append("circle");
+
+    circles.attr("cx", function(d) { return x(d.key); })
+        .attr("cy", function(d) { return y(d.value); })
+        .attr("r", 4)
+        .attr("opacity", 0)
+        .attr("fill", function(d) {
+            return colorScale(query.name);
+        })
+        .on("mouseover", function(d) {
+            d3.select(this).attr("opacity", 1);
+            return true;
+        })
+        .on("mouseout", function(d) {
+            d3.select(this).attr("opacity", 0);
+            return true;
+        });
+};
+
 var renderLineChart = function(container, queries) {
     var width = fullWidth - margin.left - margin.right;
     var height = fullHeight - margin.top - margin.bottom;
@@ -112,22 +154,18 @@ var renderLineChart = function(container, queries) {
     svg.select("g.x.axis")
         .call(xAxis);
 
-    svg.select("g.chart")
-        .selectAll("path")
-        .data(queries)
-        .enter()
-        .append("path")
-        .attr('d', function(query) {
-            var data = flatSamples(query.samples);
-            return d3.svg.line()
-                .x(function(d) { return x(d.key); })
-                .y(function(d) { return y(d.value); })(data);
-        })
-        .attr('stroke', function(d) {
-            return colorScale(d.name);
-        })
-        .attr('stroke-width', 2)
-        .attr('fill', 'none');
+    var queryGroups = svg.select("g.chart")
+        .selectAll("g.query")
+        .data(queries);
+
+    queryGroups.enter()
+        .append("g")
+        .attr("class", "query");
+
+    queryGroups.each(function(query) {
+        renderQuery(d3.select(this), query, x, y);
+    });
+    queryGroups.exit().remove();
 };
 
 var isValidJson = function(str) {

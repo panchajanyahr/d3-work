@@ -80,7 +80,7 @@ var flatSamples = function(samples) {
     }, []);
 };
 
-var renderQuery = function(queryGroup, query, x, y) {
+var renderQuery = function(queryGroup, query, x, y, mouseOverCallback, mouseOutCallback) {
     var samples = flatSamples(query.samples);
 
     var path = queryGroup
@@ -114,15 +114,17 @@ var renderQuery = function(queryGroup, query, x, y) {
         })
         .on("mouseover", function(d) {
             d3.select(this).attr("opacity", 1);
+            mouseOverCallback(d);
             return true;
         })
         .on("mouseout", function(d) {
             d3.select(this).attr("opacity", 0);
+            mouseOutCallback(d)
             return true;
         });
 };
 
-var renderLineChart = function(container, queries) {
+var renderLineChart = function(container, queries, mouseOverCallback, mouseOutCallback) {
     var width = fullWidth - margin.left - margin.right;
     var height = fullHeight - margin.top - margin.bottom;
 
@@ -163,8 +165,9 @@ var renderLineChart = function(container, queries) {
         .attr("class", "query");
 
     queryGroups.each(function(query) {
-        renderQuery(d3.select(this), query, x, y);
+        renderQuery(d3.select(this), query, x, y, mouseOverCallback, mouseOutCallback);
     });
+
     queryGroups.exit().remove();
 };
 
@@ -182,7 +185,14 @@ var textArea = function() {
 };
 
 var render = function() {
-    renderLineChart(".container", JSON.parse(textArea().value));
+    renderLineChart(".container",
+                    JSON.parse(textArea().value),
+                    function(d) {
+                        d3.select(".selectedText").text(JSON.stringify(d));
+                    },
+                    function(d) {
+                        d3.select(".selectedText").text("");
+                    });
 };
 
 d3.json("line-data.json", function(error, queries) {

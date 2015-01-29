@@ -77,7 +77,9 @@ var createSvg = function(container) {
 var flatSamples = function(samples) {
     return samples.reduce(function(result, sample) {
         return result.concat(sample.values);
-    }, []);
+    }, []).sort(function(a, b) {
+        return a.key - b.key;
+    });
 };
 
 var renderQuery = function(queryGroup, query, x, y, mouseOverCallback, mouseOutCallback) {

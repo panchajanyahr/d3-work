@@ -1,8 +1,8 @@
 var fullWidth = 800;
 var fullHeight = 400;
 var margin = {
-    left: 50,
-    right: 10,
+    left: 100,
+    right: 60,
     bottom: 50,
     top:10
 };

@@ -1,8 +1,8 @@
 var fullWidth = 800;
 var fullHeight = 400;
 var margin = {
-    left: 100,
-    right: 60,
+    left: 80,
+    right: 40,
     bottom: 50,
     top:10
 };
@@ -92,11 +92,15 @@ var renderQuery = function(queryGroup, query, x, y, mouseOverCallback, mouseOutC
     path.enter()
         .append("path");
 
-    path.attr('d', function(query) {
+    path.transition()
+        .duration(300)
+        .attr('d', function(query) {
         return d3.svg.line()
             .x(function(d) { return x(d.key); })
             .y(function(d) { return y(d.value); })(samples);
-    }).attr('stroke', function(d) {
+    });
+
+    path.attr('stroke', function(d) {
         return colorScale(d.name);
     }).attr('stroke-width', 2)
         .attr('fill', 'none');
@@ -145,6 +149,8 @@ var renderLineChart = function(container, queries, mouseOverCallback, mouseOutCa
         .orient("left");
 
     svg.select("g.y.axis")
+        .transition()
+        .duration(300)
         .call(yAxis);
 
     var x = d3.scale.linear()
@@ -156,6 +162,8 @@ var renderLineChart = function(container, queries, mouseOverCallback, mouseOutCa
         .orient("bottom");
 
     svg.select("g.x.axis")
+        .transition()
+        .duration(300)
         .call(xAxis);
 
     var queryGroups = svg.select("g.chart")
